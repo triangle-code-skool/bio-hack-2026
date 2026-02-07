@@ -6,9 +6,10 @@
   "scripts": {
     "api:dev": "cd api && source venv/bin/activate && uvicorn app:app --host 0.0.0.0 --port 8000 --reload",
     "app:dev": "cd app && npm run start",
+    "dashboard:dev": "cd dashboard && source venv/bin/activate && streamlit run app.py",
     "app:ios": "cd app && npm run ios",
     "app:android": "cd app && npm run android",
-    "dev": "concurrently --kill-others \"npm run api:dev\" \"npm run app:dev\"",
+    "dev": "concurrently --kill-others \"npm run api:dev\" \"npm run app:dev\" \"npm run dashboard:dev\"",
     "supabase:stop": "supabase stop",
     "supabase:start": "supabase start",
     "supabase:migration": "supabase migration new",

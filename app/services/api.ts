@@ -79,13 +79,58 @@ export const predictViability = async (
   formData: AssessmentFormData,
 ): Promise<AnalysisResult> => {
   const requestData = transformFormDataToRequest(formData);
-  const response = await getPrediction(requestData);
 
-  // Map response to AnalysisResult type
-  return {
-    viability_score: response.viability_score,
-    classification: response.classification as AnalysisResult["classification"],
-    confidence: response.confidence,
-    risk_factors: response.risk_factors,
-  };
+  try {
+    const response = await getPrediction(requestData);
+
+    // Map response to AnalysisResult type
+    return {
+      viability_score: response.viability_score,
+      classification:
+        response.classification as AnalysisResult["classification"],
+      confidence: response.confidence,
+      risk_factors: response.risk_factors,
+    };
+  } catch (error) {
+    console.warn("Backend Offline, using simulation mode", error);
+
+    // --- FALLBACK MOCK LOGIC (Matches Streamlit) ---
+    const {
+      tissue_stiffness_kpa: stiffness,
+      resistive_index: ri,
+      cold_ischemia_hours: cit_hours,
+      donor_age,
+      perfusion_uniformity_pct: perfusion,
+    } = requestData;
+
+    let score = 100;
+    score -= stiffness > 6.0 ? (stiffness - 5.0) * 3 : 0;
+    score -= ri > 0.7 ? (ri - 0.7) * 40 : 0;
+    score -= cit_hours > 12 ? (cit_hours - 12) * 1.5 : 0;
+    score -= donor_age > 50 ? (donor_age - 50) * 0.3 : 0;
+    score -= (100 - perfusion) * 0.2;
+
+    score = Math.max(0, Math.min(100, score));
+
+    let classification: AnalysisResult["classification"] = "Decline";
+    let msg = "";
+
+    if (score >= 70) {
+      classification = "Accept";
+      msg = "Organ shows excellent viability parameters. (SIMULATED)";
+    } else if (score >= 40) {
+      classification = "Marginal";
+      msg = "Organ shows signs of stress. (SIMULATED)";
+    } else {
+      classification = "Decline";
+      msg = "High risk features detected. (SIMULATED)";
+    }
+
+    return {
+      viability_score: Math.round(score),
+      classification,
+      confidence: 0.87,
+      risk_factors: [msg],
+    };
+  }
 };

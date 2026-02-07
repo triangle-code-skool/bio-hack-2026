@@ -10,7 +10,7 @@ class PredictionRequest(BaseModel):
     shear_wave_velocity_ms: float
     perfusion_uniformity_pct: float
     echogenicity_grade: int
-    edema_index: int
+    edema_index: float
     cold_ischemia_hours: float
     donor_age: int
     kdpi_percentile: Optional[int] = None

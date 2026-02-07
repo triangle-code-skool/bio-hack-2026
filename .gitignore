@@ -157,3 +157,5 @@ Thumbs.db
 # Editor
 .vscode
 .idea
+
+node_modules/*

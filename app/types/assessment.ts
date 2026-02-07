@@ -33,20 +33,20 @@ export interface AssessmentFormData {
 
 export const initialFormData: AssessmentFormData = {
   ultrasound: {
-    tissueStiffness: null,
-    resistiveIndex: null,
-    shearWaveVelocity: null,
-    perfusionUniformity: 50,
-    echogenicityGrade: 3,
-    edemaIndex: 5,
+    tissueStiffness: 5.2,
+    resistiveIndex: 0.65,
+    shearWaveVelocity: 2.1,
+    perfusionUniformity: 85,
+    echogenicityGrade: 2,
+    edemaIndex: 2,
   },
   clinical: {
-    organType: null,
-    coldIschemiaTime: null,
-    warmIschemiaTime: null,
-    donorAge: null,
-    kdpiDriScore: null,
-    causeOfDeath: null,
+    organType: "Kidney",
+    coldIschemiaTime: 12.0,
+    warmIschemiaTime: 15,
+    donorAge: 45,
+    kdpiDriScore: 40,
+    causeOfDeath: "Trauma",
   },
 };
 
