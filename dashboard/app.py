@@ -15,8 +15,10 @@ st.set_page_config(
 
 # --- Premium Dark Theme CSS ---
 st.markdown("""
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
     
     /* ===== Color Palette ===== */
     :root {
@@ -176,12 +178,33 @@ st.markdown("""
     }
 
     /* Force primary button to match */
+    /* Force primary button to match */
     div[data-testid="stButton"] > button[kind="primary"] {
         background: linear-gradient(135deg, var(--accent) 0%, #16a34a 100%) !important;
         color: #ffffff !important;
         border: none !important;
         text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important; /* Enhanced Contrast */
         font-weight: 700 !important;
+    }
+
+    div[data-testid="stButton"] button p {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        margin: 0 !important;
+    }
+    
+    div[data-testid="stButton"] button p::before {
+        content: "" !important;
+        display: inline-block !important;
+        width: 14px !important;
+        height: 14px !important;
+        background-color: #ffffff !important;
+        margin-right: 10px !important;
+        -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M8 5v14l11-7z'/%3E%3C/svg%3E") no-repeat center !important;
+        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M8 5v14l11-7z'/%3E%3C/svg%3E") no-repeat center !important;
+        -webkit-mask-size: contain !important;
+        mask-size: contain !important;
     }
     
     .stButton > button:hover {
@@ -391,7 +414,7 @@ with header_left:
     st.caption("AI-Powered Organ Viability Assessment")
 with header_right:
     st.markdown("")  # Spacer
-    run_scan = st.button("▶  Analyze", key="scan_btn", type="primary", use_container_width=True)
+    run_scan = st.button("Analyze", key="scan_btn", type="primary", use_container_width=True)
 
 st.divider()
 
@@ -440,10 +463,17 @@ if run_scan or st.session_state.get('scan_triggered', False):
     # Color mapping
     status_colors = {"ACCEPT": "#22c55e", "MARGINAL": "#eab308", "DECLINE": "#ef4444", "ERROR": "#ef4444"}
     status_classes = {"ACCEPT": "status-accept", "MARGINAL": "status-marginal", "DECLINE": "status-decline"}
+    # icon mapping (Font Awesome classes)
+    alert_icon_classes = {
+        "ACCEPT": "fa-solid fa-circle-check",
+        "MARGINAL": "fa-solid fa-circle-exclamation",
+        "DECLINE": "fa-solid fa-circle-xmark"
+    }
     alert_icons = {"ACCEPT": "✓", "MARGINAL": "!", "DECLINE": "✕"}
     alert_bg = {"ACCEPT": "rgba(34,197,94,0.15)", "MARGINAL": "rgba(234,179,8,0.15)", "DECLINE": "rgba(239,68,68,0.15)"}
     color = status_colors.get(status, "#9898a8")
     status_class = status_classes.get(status, "")
+    fa_icon = alert_icon_classes.get(status, "fa-solid fa-question")
 
     # Metric Cards Row
     metric_cols = st.columns(4)
@@ -490,7 +520,7 @@ if run_scan or st.session_state.get('scan_triggered', False):
     st.markdown(f"""
     <div class="alert-box">
         <div class="alert-icon" style="background: {alert_bg.get(status, 'rgba(152,152,168,0.15)')}; color: {color};">
-            {alert_icons.get(status, '?')}
+            <i class="{fa_icon}"></i>
         </div>
         <div class="alert-content">
             <h4>{alert_titles.get(status, 'Unknown Status')}</h4>
