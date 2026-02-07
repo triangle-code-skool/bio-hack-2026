@@ -15,10 +15,10 @@ st.set_page_config(
 
 # --- Premium Dark Theme CSS ---
 st.markdown("""
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-    @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css');
+    @import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
+    @import url('https://fonts.googleapis.com/icon?family=Material+Icons');
     
     /* ===== Color Palette ===== */
     :root {
@@ -49,9 +49,14 @@ st.markdown("""
     [data-testid="stHeader"] { background: transparent !important; }
     
     /* ===== Typography ===== */
-    html, body, [class*="css"] {
+    html, body {
         font-family: 'DM Sans', -apple-system, sans-serif !important;
         -webkit-font-smoothing: antialiased;
+    }
+    
+    /* Apply body font to most elements but EXCLUDE icons */
+    :not(i):not(.material-icons):not(.material-symbols-rounded):not([data-testid="stIconMaterial"]) {
+        font-family: 'DM Sans', sans-serif !important;
     }
     
     h1 { 
@@ -129,10 +134,6 @@ st.markdown("""
         color: #ffffff !important;
     }
 
-
-    
-
-    
     /* ===== Selectbox ===== */
     .stSelectbox > div > div {
         font-family: 'DM Sans', sans-serif !important;
@@ -147,13 +148,30 @@ st.markdown("""
         font-weight: 500 !important;
     }
     
-    /* ===== Expanders ===== */
-    .streamlit-expanderHeader {
-        font-family: 'DM Sans', sans-serif !important;
+    /* ===== Containers / Boxes ===== */
+    /* ===== Containers / Boxes (Sidebar) ===== */
+    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] > div > [data-testid="stVerticalBlock"] {
         background: var(--bg-elevated) !important;
-        border-radius: 10px !important;
-        color: var(--text-primary) !important;
-        font-weight: 500 !important;
+        border: 1px solid var(--border) !important;
+        border-radius: 12px !important;
+        padding: 0.9rem !important;
+        overflow: hidden !important;
+    }
+
+    /* Style the H4 headers as grey banners */
+    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] > div:first-child [data-testid="stMarkdownContainer"] h4 {
+        background: #262730 !important; /* Solid medium grey banner */
+        margin: -0.9rem -0.9rem 0.9rem -0.9rem !important; /* Offset the container padding */
+        padding: 0.6rem 1rem !important; /* Internal padding for the banner text */
+        border-bottom: 1px solid var(--border) !important;
+        border-radius: 0 !important;
+        color: var(--text-bright) !important;
+        font-size: 0.75rem !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.1em !important;
+        font-weight: 700 !important;
+        display: block !important;
+        width: calc(100% + 1.8rem) !important;
     }
     
     /* ===== Dividers ===== */
@@ -161,6 +179,12 @@ st.markdown("""
     
     /* ===== Hide Branding ===== */
     #MainMenu, footer { visibility: hidden; }
+    
+    /* ===== Hide Sidebar Collapse/Expand Icons ===== */
+    [data-testid="stSidebarCollapseButton"],
+    [data-testid="collapsedControl"] {
+        display: none !important;
+    }
     
     /* ===== Buttons ===== */
     .stButton > button {
@@ -178,33 +202,12 @@ st.markdown("""
     }
 
     /* Force primary button to match */
-    /* Force primary button to match */
     div[data-testid="stButton"] > button[kind="primary"] {
         background: linear-gradient(135deg, var(--accent) 0%, #16a34a 100%) !important;
         color: #ffffff !important;
         border: none !important;
         text-shadow: 0 1px 2px rgba(0,0,0,0.3) !important; /* Enhanced Contrast */
         font-weight: 700 !important;
-    }
-
-    div[data-testid="stButton"] button p {
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        margin: 0 !important;
-    }
-    
-    div[data-testid="stButton"] button p::before {
-        content: "" !important;
-        display: inline-block !important;
-        width: 14px !important;
-        height: 14px !important;
-        background-color: #ffffff !important;
-        margin-right: 10px !important;
-        -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M8 5v14l11-7z'/%3E%3C/svg%3E") no-repeat center !important;
-        mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M8 5v14l11-7z'/%3E%3C/svg%3E") no-repeat center !important;
-        -webkit-mask-size: contain !important;
-        mask-size: contain !important;
     }
     
     .stButton > button:hover {
@@ -367,6 +370,14 @@ st.markdown("""
         border-radius: 20px;
     }
 
+    .organ-metadata {
+        font-family: 'DM Sans', sans-serif;
+        background: var(--bg-card);
+        color: var(--text-primary);
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -389,14 +400,18 @@ def trigger_scan():
 with st.sidebar:
     st.markdown("### Configuration")
     
-    with st.expander("Organ Metadata", expanded=True):
+    with st.container(border=True):
+        st.markdown("#### Organ Metadata")
         organ_type = st.selectbox("Organ Type", ["Kidney", "Liver", "Heart", "Lung"], key="organ_type")
         donor_age = st.slider("Donor Age", 0, 100, 45, key="donor_age")
         cit_hours = st.slider("Cold Ischemia Time (hrs)", 0.0, 40.0, 12.0, 0.5, key="cit_hours")
         kdpi = st.slider("KDPI / DRI (%)", 0, 100, 40, key="kdpi")
         cause_death = st.selectbox("Cause of Death", ["Trauma", "Anoxia", "CVA", "Other"], key="cause_death")
 
-    with st.expander("Ultrasound Metrics", expanded=True):
+    st.markdown("") # Spacer
+
+    with st.container(border=True):
+        st.markdown("#### Ultrasound Metrics")
         stiffness = st.slider("Tissue Stiffness (kPa)", 0.0, 30.0, 5.2, 0.1, key="stiffness")
         ri = st.slider("Resistive Index (RI)", 0.0, 1.2, 0.65, 0.01, key="ri")
         swv = st.slider("Shear Wave Velocity (m/s)", 0.0, 5.0, 2.1, 0.1, key="swv")
@@ -414,7 +429,7 @@ with header_left:
     st.caption("AI-Powered Organ Viability Assessment")
 with header_right:
     st.markdown("")  # Spacer
-    run_scan = st.button("Analyze", key="scan_btn", type="primary", use_container_width=True)
+    run_scan = st.button("▶  Analyze", key="scan_btn", type="primary", use_container_width=True)
 
 st.divider()
 
@@ -463,17 +478,10 @@ if run_scan or st.session_state.get('scan_triggered', False):
     # Color mapping
     status_colors = {"ACCEPT": "#22c55e", "MARGINAL": "#eab308", "DECLINE": "#ef4444", "ERROR": "#ef4444"}
     status_classes = {"ACCEPT": "status-accept", "MARGINAL": "status-marginal", "DECLINE": "status-decline"}
-    # icon mapping (Font Awesome classes)
-    alert_icon_classes = {
-        "ACCEPT": "fa-solid fa-circle-check",
-        "MARGINAL": "fa-solid fa-circle-exclamation",
-        "DECLINE": "fa-solid fa-circle-xmark"
-    }
     alert_icons = {"ACCEPT": "✓", "MARGINAL": "!", "DECLINE": "✕"}
     alert_bg = {"ACCEPT": "rgba(34,197,94,0.15)", "MARGINAL": "rgba(234,179,8,0.15)", "DECLINE": "rgba(239,68,68,0.15)"}
     color = status_colors.get(status, "#9898a8")
     status_class = status_classes.get(status, "")
-    fa_icon = alert_icon_classes.get(status, "fa-solid fa-question")
 
     # Metric Cards Row
     metric_cols = st.columns(4)
@@ -520,7 +528,7 @@ if run_scan or st.session_state.get('scan_triggered', False):
     st.markdown(f"""
     <div class="alert-box">
         <div class="alert-icon" style="background: {alert_bg.get(status, 'rgba(152,152,168,0.15)')}; color: {color};">
-            <i class="{fa_icon}"></i>
+            {alert_icons.get(status, '?')}
         </div>
         <div class="alert-content">
             <h4>{alert_titles.get(status, 'Unknown Status')}</h4>
@@ -591,7 +599,7 @@ if run_scan or st.session_state.get('scan_triggered', False):
             textposition='outside', textfont=dict(color='#9898a8', size=10, family='JetBrains Mono')
         ))
         fig_bar.update_layout(
-            xaxis=dict(title="Impact", titlefont=dict(color='#9898a8', size=11), tickfont=dict(color='#9898a8', size=10),
+            xaxis=dict(title=dict(text="Impact", font=dict(color='#9898a8', size=11)), tickfont=dict(color='#9898a8', size=10),
                        gridcolor='rgba(45, 45, 58, 0.4)', zerolinecolor='rgba(45, 45, 58, 0.8)'),
             yaxis=dict(title=None, tickfont=dict(color='#e8e8ed', size=11)),
             margin=dict(l=20, r=50, t=20, b=20),
