@@ -1,0 +1,40 @@
+import pandas as pd
+import numpy as np
+
+def generate_ultra_viab_data(samples=1000):
+    np.random.seed(42)
+    
+    # 1. Base Donor Stats
+    cit = np.random.gamma(shape=2, scale=8, size=samples) # Cold Ischemia Time (hours)
+    kdpi = np.random.uniform(0, 100, samples)
+    
+    # 2. Correlated Ultrasound Features
+    # Stiffness increases with CIT and KDPI
+    stiffness = 4.0 + (cit * 0.4) + (kdpi * 0.05) + np.random.normal(0, 1, samples)
+    
+    # RI increases with stiffness (vascular resistance)
+    ri = 0.6 + (stiffness * 0.015) + np.random.normal(0, 0.02, samples)
+    
+    # Perfusion decreases as CIT and Stiffness increase
+    perfusion = 100 - (cit * 1.2) - (stiffness * 0.8) + np.random.normal(0, 5, samples)
+    perfusion = np.clip(perfusion, 0, 100) # Keep within 0-100%
+
+    # 3. Target Variable: Viability Score (The Ground Truth)
+    # Let's create a weighted scoring formula for the "label"
+    # A score of 100 is perfect; < 50 is likely a discard
+    viability = 100 - (0.5 * kdpi) - (1.5 * cit) - (2.0 * stiffness) + (0.5 * perfusion)
+    viability = np.clip(viability, 0, 100)
+    
+    df = pd.DataFrame({
+        'CIT_hours': cit,
+        'KDPI_score': kdpi,
+        'Stiffness_kPa': stiffness,
+        'Resistive_Index': ri,
+        'Perfusion_Uniformity': perfusion,
+        'Viability_Score': viability
+    })
+    
+    return df
+
+df = generate_ultra_viab_data()
+df.to_csv('ultraviab_synthetic_v1.csv', index=False)
