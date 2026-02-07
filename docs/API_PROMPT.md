@@ -1,0 +1,2 @@
+# API Prompting
+separate the files into services utils and controllers. also only have app.py init the routes. import all controllers into this file. I want to encapsulate the endpoints and user SOLID principles

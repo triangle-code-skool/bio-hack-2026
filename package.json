@@ -1,0 +1,20 @@
+{
+  "name": "bio-hack-2026",
+  "version": "1.0.0",
+  "description": "Unified entry point for Bio-Hack 2026 project",
+  "private": true,
+  "scripts": {
+    "api:dev": "cd api && source venv/bin/activate && uvicorn app:app --host 0.0.0.0 --port 8000 --reload",
+    "app:dev": "cd app && npm run start",
+    "app:ios": "cd app && npm run ios",
+    "app:android": "cd app && npm run android",
+    "dev": "concurrently --kill-others \"npm run api:dev\" \"npm run app:dev\"",
+    "supabase:stop": "supabase stop",
+    "supabase:start": "supabase start",
+    "supabase:migration": "supabase migration new",
+    "supabase:push": "supabase db push"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  }
+}

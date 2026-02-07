@@ -1,53 +1,31 @@
+"""
+UltraViab API - Organ Viability Assessment API
+Main application entry point - only responsible for app initialization and route registration.
+"""
 from fastapi import FastAPI
-from pydantic import BaseModel
-from typing import List, Optional
+from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="UltraViab API", description="Organ Viability Assessment API")
+from controllers import health_router, prediction_router
 
-class PredictionRequest(BaseModel):
-    organ_type: str
-    tissue_stiffness_kpa: float
-    resistive_index: float
-    shear_wave_velocity_ms: float
-    perfusion_uniformity_pct: float
-    echogenicity_grade: int
-    edema_index: int
-    cold_ischemia_hours: float
-    donor_age: int
-    kdpi_percentile: Optional[int] = None
-    cause_of_death: str
-    warm_ischemia_minutes: float
+app = FastAPI(
+    title="UltraViab API",
+    description="Organ Viability Assessment API",
+    version="1.0.0"
+)
 
-class PredictionResponse(BaseModel):
-    viability_score: int
-    classification: str
-    confidence: float
-    risk_factors: List[str]
-    feature_contributions: dict
+# CORS Configuration - Open to all origins
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
-@app.get("/")
-async def root():
-    return {"message": "UltraViab API is running"}
+# Register all controllers/routers
+app.include_router(health_router)
+app.include_router(prediction_router)
 
-@app.post("/predict", response_model=PredictionResponse)
-async def predict(request: PredictionRequest):
-    # Mock prediction logic for now
-    # This will be replaced with actual model inference later
-    
-    score = 75  # Default mock score
-    classification = "Accept"
-    if score < 40:
-        classification = "Decline"
-    elif score < 70:
-        classification = "Marginal"
-        
-    return {
-        "viability_score": score,
-        "classification": classification,
-        "confidence": 0.85,
-        "risk_factors": ["Example risk factor"],
-        "feature_contributions": {"stiffness": 0.4, "cit": 0.3}
-    }
 
 if __name__ == "__main__":
     import uvicorn
