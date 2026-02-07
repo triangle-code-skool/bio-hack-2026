@@ -65,13 +65,29 @@ export default function NewAssessmentScreen() {
     }));
   };
 
-  const parseNumericInput = (text: string): number | null => {
-    if (text === '') return null;
+  // Track raw string values for inputs to preserve decimal points during typing
+  const [rawInputs, setRawInputs] = useState<Record<string, string>>({});
+
+  const parseNumericInput = (text: string, inputKey: string): number | null => {
+    // Store the raw text to preserve trailing decimals (e.g., "0.")
+    setRawInputs((prev) => ({ ...prev, [inputKey]: text }));
+
+    if (text === '' || text === '.') return null;
+    // Don't parse if text ends with a decimal (user is still typing)
+    if (text.endsWith('.')) {
+      const num = parseFloat(text.slice(0, -1));
+      return isNaN(num) ? null : num;
+    }
     const num = parseFloat(text);
     return isNaN(num) ? null : num;
   };
 
-  const formatNumericValue = (value: number | null): string => {
+  const formatNumericValue = (value: number | null, inputKey: string): string => {
+    // If we have a raw input that ends with a decimal, use it
+    const rawInput = rawInputs[inputKey];
+    if (rawInput !== undefined && (rawInput.endsWith('.') || rawInput === '.')) {
+      return rawInput;
+    }
     return value !== null ? String(value) : '';
   };
 
@@ -131,8 +147,8 @@ export default function NewAssessmentScreen() {
           <Card title="Ultrasound Metrics">
             <FormInput
               label="Tissue Stiffness"
-              value={formatNumericValue(formData.ultrasound.tissueStiffness)}
-              onChangeText={(text) => updateUltrasound('tissueStiffness', parseNumericInput(text))}
+              value={formatNumericValue(formData.ultrasound.tissueStiffness, 'tissueStiffness')}
+              onChangeText={(text) => updateUltrasound('tissueStiffness', parseNumericInput(text, 'tissueStiffness'))}
               placeholder="Enter value"
               keyboardType="decimal-pad"
               unit="kPa"
@@ -140,16 +156,16 @@ export default function NewAssessmentScreen() {
 
             <FormInput
               label="Resistive Index (RI)"
-              value={formatNumericValue(formData.ultrasound.resistiveIndex)}
-              onChangeText={(text) => updateUltrasound('resistiveIndex', parseNumericInput(text))}
+              value={formatNumericValue(formData.ultrasound.resistiveIndex, 'resistiveIndex')}
+              onChangeText={(text) => updateUltrasound('resistiveIndex', parseNumericInput(text, 'resistiveIndex'))}
               placeholder="0.0 - 1.0"
               keyboardType="decimal-pad"
             />
 
             <FormInput
               label="Shear Wave Velocity"
-              value={formatNumericValue(formData.ultrasound.shearWaveVelocity)}
-              onChangeText={(text) => updateUltrasound('shearWaveVelocity', parseNumericInput(text))}
+              value={formatNumericValue(formData.ultrasound.shearWaveVelocity, 'shearWaveVelocity')}
+              onChangeText={(text) => updateUltrasound('shearWaveVelocity', parseNumericInput(text, 'shearWaveVelocity'))}
               placeholder="Enter value"
               keyboardType="decimal-pad"
               unit="m/s"
@@ -194,8 +210,8 @@ export default function NewAssessmentScreen() {
 
             <FormInput
               label="Cold Ischemia Time"
-              value={formatNumericValue(formData.clinical.coldIschemiaTime)}
-              onChangeText={(text) => updateClinical('coldIschemiaTime', parseNumericInput(text))}
+              value={formatNumericValue(formData.clinical.coldIschemiaTime, 'coldIschemiaTime')}
+              onChangeText={(text) => updateClinical('coldIschemiaTime', parseNumericInput(text, 'coldIschemiaTime'))}
               placeholder="Enter hours"
               keyboardType="decimal-pad"
               unit="hrs"
@@ -203,8 +219,8 @@ export default function NewAssessmentScreen() {
 
             <FormInput
               label="Warm Ischemia Time"
-              value={formatNumericValue(formData.clinical.warmIschemiaTime)}
-              onChangeText={(text) => updateClinical('warmIschemiaTime', parseNumericInput(text))}
+              value={formatNumericValue(formData.clinical.warmIschemiaTime, 'warmIschemiaTime')}
+              onChangeText={(text) => updateClinical('warmIschemiaTime', parseNumericInput(text, 'warmIschemiaTime'))}
               placeholder="Enter minutes"
               keyboardType="numeric"
               unit="mins"
@@ -212,8 +228,8 @@ export default function NewAssessmentScreen() {
 
             <FormInput
               label="Donor Age"
-              value={formatNumericValue(formData.clinical.donorAge)}
-              onChangeText={(text) => updateClinical('donorAge', parseNumericInput(text))}
+              value={formatNumericValue(formData.clinical.donorAge, 'donorAge')}
+              onChangeText={(text) => updateClinical('donorAge', parseNumericInput(text, 'donorAge'))}
               placeholder="Enter age"
               keyboardType="numeric"
               unit="yrs"
@@ -221,8 +237,8 @@ export default function NewAssessmentScreen() {
 
             <FormInput
               label="KDPI/DRI Score"
-              value={formatNumericValue(formData.clinical.kdpiDriScore)}
-              onChangeText={(text) => updateClinical('kdpiDriScore', parseNumericInput(text))}
+              value={formatNumericValue(formData.clinical.kdpiDriScore, 'kdpiDriScore')}
+              onChangeText={(text) => updateClinical('kdpiDriScore', parseNumericInput(text, 'kdpiDriScore'))}
               placeholder="Enter percentile"
               keyboardType="numeric"
               unit="%"
